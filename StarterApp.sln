@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalApp.Database", "Start
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalApp.Migrations", "StarterApp.Migrations\RentalApp.Migrations.csproj", "{56596C37-4445-4915-8BA5-F9DADDE70F15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalApp.API", "RentalApp.API\RentalApp.API.csproj", "{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,8 +58,23 @@ Global
 		{56596C37-4445-4915-8BA5-F9DADDE70F15}.Release|x64.Build.0 = Release|Any CPU
 		{56596C37-4445-4915-8BA5-F9DADDE70F15}.Release|x86.ActiveCfg = Release|Any CPU
 		{56596C37-4445-4915-8BA5-F9DADDE70F15}.Release|x86.Build.0 = Release|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Debug|x64.Build.0 = Debug|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Debug|x86.Build.0 = Debug|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Release|x64.ActiveCfg = Release|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Release|x64.Build.0 = Release|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Release|x86.ActiveCfg = Release|Any CPU
+		{96BEACBC-BD7B-45E5-A4B0-76F39B445FCE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FB5EDDE7-F290-45EF-9453-74D9FC09A3DC}
 	EndGlobalSection
 EndGlobal
