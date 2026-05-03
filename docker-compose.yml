@@ -7,9 +7,8 @@ services:
     volumes:
       - .:/workspace:cached
       - nuget_cache:/root/.nuget/packages
-    network_mode: service:db
     environment:
-      - CONNECTION_STRING=Host=localhost;Username=app_user;Password=app_password;Database=appdb
+      - CONNECTION_STRING=Host=db;Port=5432;Username=app_user;Password=app_password;Database=appdb
     command: bash -c "cd /workspace && dotnet run --project StarterApp.Migrations/StarterApp.Migrations.csproj"
     depends_on:
       db:
@@ -32,8 +31,31 @@ services:
       db:
         condition: service_healthy
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    ports:
+      - "5000:8080"  # Map host:5000 to container:8080 (ASP.NET Core default)
+    volumes:
+      - .:/workspace:cached
+      - nuget_cache:/root/.nuget/packages
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Username=app_user;Password=app_password;Database=appdb
+      - JWT_SECRET=CHANGE_ME_TO_A_LONG_RANDOM_SECRET_AT_LEAST_32_CHARS
+    command: bash -c "cd /workspace/RentalApp.API && dotnet watch run --no-launch-profile"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
   db:
-    image: postgres:16
+    image: postgis/postgis:16-3.4
     restart: always
     environment:
       POSTGRES_USER: app_user

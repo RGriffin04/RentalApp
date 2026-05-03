@@ -4,8 +4,47 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:RentalApp.Views"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Flyout">
 
-    <ShellContent ContentTemplate="{DataTemplate views:LoginPage}" />
+    <!-- Login/Register Pages (outside of main navigation) -->
+    <ShellContent
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Shell.FlyoutItemIsVisible="False" />
+
+    <!-- Main Marketplace Pages -->
+    <FlyoutItem Title="Marketplace" Icon="shop.png">
+        <ShellContent
+            Title="Browse Items"
+            Route="ItemsListPage"
+            ContentTemplate="{DataTemplate views:ItemsListPage}"
+            Icon="list.png" />
+
+        <ShellContent
+            Title="Nearby Items"
+            Route="NearbyItemsPage"
+            ContentTemplate="{DataTemplate views:NearbyItemsPage}"
+            Icon="location.png" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="My Account" Icon="person.png">
+        <ShellContent
+            Title="My Items"
+            Route="MyItemsPage"
+            ContentTemplate="{DataTemplate views:MyItemsPage}"
+            Icon="box.png" />
+
+        <ShellContent
+            Title="My Rentals"
+            Route="RentalsPage"
+            ContentTemplate="{DataTemplate views:RentalsPage}"
+            Icon="calendar.png" />
+    </FlyoutItem>
+
+    <!-- Logout -->
+    <MenuItem
+        Text="Logout"
+        Command="{Binding LogoutCommand}"
+        IconImageSource="logout.png" />
 
 </Shell>

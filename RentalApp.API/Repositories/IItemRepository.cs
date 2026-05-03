@@ -57,4 +57,33 @@ public interface IItemRepository
     /// <param name="categoryId">Category ID to check</param>
     /// <returns>True if category exists, false otherwise</returns>
     Task<bool> CategoryExistsAsync(int categoryId);
+
+    /// <summary>
+    /// Gets items within a specified radius using PostGIS geography functions
+    /// </summary>
+    /// <param name="latitude">Center latitude (WGS84)</param>
+    /// <param name="longitude">Center longitude (WGS84)</param>
+    /// <param name="radiusKm">Search radius in kilometers</param>
+    /// <returns>Items ordered by distance from center point</returns>
+    Task<List<Item>> GetNearbyAsync(double latitude, double longitude, double radiusKm);
+
+    /// <summary>
+    /// Gets items within radius with distance information in kilometers
+    /// </summary>
+    /// <param name="latitude">Center latitude (WGS84)</param>
+    /// <param name="longitude">Center longitude (WGS84)</param>
+    /// <param name="radiusKm">Search radius in kilometers</param>
+    /// <returns>Items with distance in kilometers, ordered by distance</returns>
+    Task<List<(Item Item, double DistanceKm)>> GetNearbyWithDistanceAsync(
+        double latitude, double longitude, double radiusKm);
+
+    /// <summary>
+    /// Gets items with their average ratings and rating count
+    /// </summary>
+    /// <param name="search">Optional search term</param>
+    /// <param name="categoryId">Optional category filter</param>
+    /// <param name="isAvailable">Optional availability filter</param>
+    /// <returns>Items with average rating and count</returns>
+    Task<List<(Item Item, double AverageRating, int RatingCount)>> GetWithRatingsAsync(
+        string? search = null, int? categoryId = null, bool? isAvailable = null);
 }

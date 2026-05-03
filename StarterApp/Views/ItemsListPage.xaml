@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="RentalApp.Views.ItemsListPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RentalApp.ViewModels"
+             xmlns:models="clr-namespace:RentalApp.Database.Models;assembly=RentalApp.Database"
+             Title="{Binding Title}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Nearby" Command="{Binding GoToNearbySearchCommand}" />
+        <ToolbarItem Text="My Items" Command="{Binding GoToMyItemsCommand}" />
+        <ToolbarItem Text="Rentals" Command="{Binding GoToRentalsCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="10">
+
+        <!-- Error Message -->
+        <Border Grid.Row="0"
+                BackgroundColor="#FFEBEE"
+                Stroke="#F44336"
+                StrokeThickness="1"
+                Padding="15"
+                Margin="0,0,0,10"
+                IsVisible="{Binding HasError}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0"
+                       Text="{Binding ErrorMessage}"
+                       TextColor="#D32F2F"
+                       FontSize="14"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="✕"
+                        Command="{Binding ClearErrorCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="#D32F2F"
+                        FontSize="18"
+                        Padding="10,0"
+                        WidthRequest="40" />
+            </Grid>
+        </Border>
+
+        <!-- Filters Section -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10" ColumnSpacing="10" Margin="0,0,0,10">
+
+            <!-- Search Bar -->
+            <SearchBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                       Placeholder="Search items..."
+                       Text="{Binding SearchText}"
+                       SearchCommand="{Binding ApplyFiltersCommand}" />
+
+            <!-- Category Picker -->
+            <Picker Grid.Row="1" Grid.Column="0"
+                    Title="Category"
+                    ItemsSource="{Binding Categories}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedCategory}"
+                    SelectedIndexChanged="OnCategoryChanged" />
+
+            <!-- Available Only Switch -->
+            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                <Label Text="Available" VerticalOptions="Center" />
+                <Switch IsToggled="{Binding ShowOnlyAvailable}" Toggled="OnAvailableToggled" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Items List with Pull to Refresh -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Items}"
+                            SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <StackLayout Padding="20" VerticalOptions="Center">
+                        <Label Text="No items found"
+                               HorizontalOptions="Center"
+                               FontSize="18" />
+                        <Button Text="Create an Item"
+                                Command="{Binding CreateItemCommand}"
+                                Margin="0,20,0,0"
+                                HorizontalOptions="Center" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Item">
+                        <Border Margin="0,5" Padding="10" BackgroundColor="White" Stroke="LightGray" StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ItemsListViewModel}}, Path=ViewItemCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+
+                                <!-- Title and Price -->
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding Title}"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
+
+                                <Label Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding DailyPrice, Converter={StaticResource CurrencyToUkString}}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="Green"
+                                       HorizontalOptions="End" />
+
+                                <!-- Category -->
+                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                       Text="{Binding Category.Name}"
+                                       FontSize="14"
+                                       TextColor="Gray"
+                                       Margin="0,5,0,0" />
+
+                                <!-- Description -->
+                                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                       Text="{Binding Description}"
+                                       FontSize="14"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="2"
+                                       Margin="0,5,0,0" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
+
+        <!-- FAB for Create Item -->
+        <Button Grid.Row="2"
+                Text="+"
+                Command="{Binding CreateItemCommand}"
+                WidthRequest="60"
+                HeightRequest="60"
+                CornerRadius="30"
+                FontSize="32"
+                BackgroundColor="Green"
+                TextColor="White"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,10,10" />
+    </Grid>
+</ContentPage>

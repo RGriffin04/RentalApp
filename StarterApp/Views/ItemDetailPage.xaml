@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="RentalApp.Views.ItemDetailPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RentalApp.ViewModels"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+
+            <!-- Error Message -->
+            <Border BackgroundColor="#FFEBEE"
+                    Stroke="#F44336"
+                    StrokeThickness="1"
+                    Padding="15"
+                    IsVisible="{Binding HasError}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding ErrorMessage}"
+                           TextColor="#D32F2F"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            Command="{Binding ClearErrorCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#D32F2F"
+                            FontSize="18"
+                            Padding="10,0"
+                            WidthRequest="40" />
+                </Grid>
+            </Border>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               Margin="50" />
+
+            <!-- Item Details (visible when not loading) -->
+            <VerticalStackLayout Spacing="15" IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}">
+
+                <!-- Title and Price -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding Item.Title}"
+                           FontSize="24"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+                           Text="{Binding Item.DailyPrice, Converter={StaticResource CurrencyToUkString}}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="Green"
+                           HorizontalOptions="End" />
+                </Grid>
+
+                <Label Text="/day"
+                       FontSize="14"
+                       TextColor="Gray"
+                       HorizontalOptions="End"
+                       Margin="0,-15,0,0" />
+
+                <!-- Category and Availability -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding Item.Category.Name}"
+                           FontSize="16"
+                           TextColor="Gray" />
+                    <Label Grid.Column="1"
+                           Text="{Binding Item.IsAvailable, Converter={StaticResource BoolToYesNoConverter}}"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="Green"
+                           HorizontalOptions="End" />
+                </Grid>
+
+                <!-- Ratings -->
+                <Button Text="{Binding RatingCount, StringFormat='⭐ {0:F1} ({1} ratings)'}"
+                        Command="{Binding ViewRatingsCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="Gray"
+                        HorizontalOptions="Start"
+                        Padding="0"
+                        IsVisible="{Binding RatingCount, Converter={StaticResource IntToBoolConverter}}" />
+
+                <!-- Description -->
+                <Label Text="Description"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       Margin="0,10,0,0" />
+                <Label Text="{Binding Item.Description}"
+                       FontSize="16" />
+
+                <!-- Location -->
+                <Label Text="Location"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       Margin="0,10,0,0"
+                       IsVisible="{Binding Item.Address, Converter={StaticResource StringIsNotNullOrEmptyConverter}}" />
+                <Label Text="{Binding Item.Address}"
+                       FontSize="16"
+                       IsVisible="{Binding Item.Address, Converter={StaticResource StringIsNotNullOrEmptyConverter}}" />
+
+                <!-- Owner Actions (Edit/Delete) -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0" IsVisible="{Binding IsOwner}">
+                    <Button Grid.Column="0"
+                            Text="Edit"
+                            Command="{Binding EditItemCommand}"
+                            BackgroundColor="Orange" />
+                    <Button Grid.Column="1"
+                            Text="Delete"
+                            Command="{Binding DeleteItemCommand}"
+                            BackgroundColor="Red" />
+                </Grid>
+
+                <!-- Rental Section -->
+                <Border Padding="15"
+                        Stroke="LightGray"
+                        StrokeThickness="1"
+                        Margin="0,20,0,0"
+                        IsVisible="{Binding CanRent}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Request Rental"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+
+                        <!-- Start Date -->
+                        <Label Text="Start Date" FontSize="16" />
+                        <DatePicker Date="{Binding StartDate}"
+                                    MinimumDate="{x:Static x:DateTime.Now}"
+                                    Format="dd/MM/yyyy" />
+
+                        <!-- End Date -->
+                        <Label Text="End Date" FontSize="16" />
+                        <DatePicker Date="{Binding EndDate}"
+                                    MinimumDate="{x:Static x:DateTime.Now}"
+                                    Format="dd/MM/yyyy" />
+
+                        <!-- Rental Summary -->
+                        <Border Padding="10"
+                                BackgroundColor="LightGreen"
+                                Stroke="Green"
+                                StrokeThickness="1">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="5" />
+                            </Border.StrokeShape>
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="5">
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="Days:"
+                                       FontSize="16" />
+                                <Label Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding RentalDays}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="End" />
+                                <Label Grid.Row="1" Grid.Column="0"
+                                       Text="Total Price:"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding TotalPrice, Converter={StaticResource CurrencyToUkString}}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="Green"
+                                       HorizontalOptions="End" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Rent Button -->
+                        <Button Text="Request Rental"
+                                Command="{Binding RentItemCommand}"
+                                BackgroundColor="Green"
+                                TextColor="White"
+                                FontSize="18"
+                                Padding="15" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -117,6 +117,10 @@ public class RentalsController : ControllerBase
 
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+        // Convert dates to UTC to ensure compatibility with PostgreSQL
+        var startDateUtc = DateTime.SpecifyKind(request.StartDate, DateTimeKind.Utc);
+        var endDateUtc = DateTime.SpecifyKind(request.EndDate, DateTimeKind.Utc);
+
         // Validate item exists and is available
         var item = await _rentalRepository.GetItemWithOwnerAsync(request.ItemId);
 
@@ -130,15 +134,15 @@ public class RentalsController : ControllerBase
             return BadRequest("You cannot rent your own item");
 
         // Validate dates
-        if (request.StartDate < DateTime.UtcNow.Date)
+        if (startDateUtc < DateTime.UtcNow.Date)
             return BadRequest("Start date cannot be in the past");
 
-        if (request.EndDate <= request.StartDate)
+        if (endDateUtc <= startDateUtc)
             return BadRequest("End date must be after start date");
 
         // Check for overlapping rentals
         var hasOverlap = await _rentalRepository.HasOverlappingRentalsAsync(
-            request.ItemId, request.StartDate, request.EndDate);
+            request.ItemId, startDateUtc, endDateUtc);
 
         if (hasOverlap)
             return BadRequest("Item is already rented for the selected dates");
@@ -147,8 +151,8 @@ public class RentalsController : ControllerBase
         {
             ItemId = request.ItemId,
             RenterId = userId,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
+            StartDate = startDateUtc,
+            EndDate = endDateUtc,
             TotalPrice = request.TotalPrice,
             Status = "Pending",
             CreatedDate = DateTime.UtcNow

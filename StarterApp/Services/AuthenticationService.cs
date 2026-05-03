@@ -114,6 +114,12 @@ public class AuthenticationService : IAuthenticationService
         return Task.CompletedTask;
     }
 
+    public string? GetAuthToken()
+    {
+        // Direct database authentication doesn't use tokens
+        return null;
+    }
+
     public bool HasRole(string roleName)
     {
         return _currentUserRoles.Contains(roleName, StringComparer.OrdinalIgnoreCase);

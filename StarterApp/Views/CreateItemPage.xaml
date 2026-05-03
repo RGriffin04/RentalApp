@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="RentalApp.Views.CreateItemPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RentalApp.ViewModels"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Error Message -->
+            <Border BackgroundColor="#FFEBEE"
+                    Stroke="#F44336"
+                    StrokeThickness="1"
+                    Padding="15"
+                    IsVisible="{Binding HasError}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding ErrorMessage}"
+                           TextColor="#D32F2F"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            Command="{Binding ClearErrorCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#D32F2F"
+                            FontSize="18"
+                            Padding="10,0"
+                            WidthRequest="40" />
+                </Grid>
+            </Border>
+
+            <!-- Title -->
+            <Label Text="Title *" FontSize="16" />
+            <Entry Text="{Binding Title}"
+                   Placeholder="Enter item title" />
+
+            <!-- Category -->
+            <Label Text="Category *" FontSize="16" />
+            <Picker ItemsSource="{Binding Categories}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedCategory}"
+                    Title="Select category" />
+
+            <!-- Daily Price -->
+            <Label Text="Daily Price (£) *" FontSize="16" />
+            <Entry Text="{Binding DailyPrice}"
+                   Placeholder="0.00"
+                   Keyboard="Numeric" />
+
+            <!-- Description -->
+            <Label Text="Description *" FontSize="16" />
+            <Editor Text="{Binding Description}"
+                    Placeholder="Describe your item..."
+                    HeightRequest="120" />
+
+            <!-- Availability -->
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="Available for rent"
+                       FontSize="16"
+                       VerticalOptions="Center" />
+                <Switch IsToggled="{Binding IsAvailable}" />
+            </HorizontalStackLayout>
+
+            <!-- Location Section -->
+            <Label Text="Location (Optional)"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   Margin="0,20,0,0" />
+
+            <Button Text="📍 Use Current Location"
+                    Command="{Binding UseCurrentLocationCommand}"
+                    BackgroundColor="Blue"
+                    TextColor="White" />
+
+            <!-- Address -->
+            <Label Text="Address" FontSize="16" />
+            <Entry Text="{Binding Address}"
+                   Placeholder="Enter address" />
+
+            <!-- Coordinates -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <VerticalStackLayout Grid.Column="0">
+                    <Label Text="Latitude" FontSize="14" />
+                    <Entry Text="{Binding Latitude}"
+                           Placeholder="51.5074"
+                           Keyboard="Numeric" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1">
+                    <Label Text="Longitude" FontSize="14" />
+                    <Entry Text="{Binding Longitude}"
+                           Placeholder="-0.1278"
+                           Keyboard="Numeric" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Save Button -->
+            <Button Text="{Binding IsEditMode, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Update Item|Create Item'}"
+                    Command="{Binding SaveItemCommand}"
+                    BackgroundColor="Green"
+                    TextColor="White"
+                    FontSize="18"
+                    Margin="0,20,0,20" />
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

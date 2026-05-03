@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="RentalApp.Views.NearbyItemsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RentalApp.ViewModels"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="15" RowSpacing="15">
+
+        <!-- Error Message -->
+        <Border Grid.Row="0"
+                BackgroundColor="#FFEBEE"
+                Stroke="#F44336"
+                StrokeThickness="1"
+                Padding="15"
+                IsVisible="{Binding HasError}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0"
+                       Text="{Binding ErrorMessage}"
+                       TextColor="#D32F2F"
+                       FontSize="14"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="✕"
+                        Command="{Binding ClearErrorCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="#D32F2F"
+                        FontSize="18"
+                        Padding="10,0"
+                        WidthRequest="40" />
+            </Grid>
+        </Border>
+
+        <!-- Location Controls -->
+        <Border Grid.Row="1"
+                Padding="15"
+                Stroke="LightGray"
+                StrokeThickness="1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10" />
+            </Border.StrokeShape>
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+                <Button Grid.Row="0"
+                        Text="📍 Use Current Location"
+                        Command="{Binding GetCurrentLocationCommand}"
+                        BackgroundColor="Blue"
+                        TextColor="White" />
+
+                <Label Grid.Row="1"
+                       Text="{Binding CurrentAddress}"
+                       FontSize="14"
+                       TextColor="Gray"
+                       HorizontalOptions="Center"
+                       IsVisible="{Binding CurrentAddress, Converter={StaticResource StringIsNotNullOrEmptyConverter}}" />
+
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <Entry Grid.Column="0"
+                           Placeholder="Latitude"
+                           Text="{Binding Latitude}"
+                           Keyboard="Numeric" />
+                    <Entry Grid.Column="1"
+                           Placeholder="Longitude"
+                           Text="{Binding Longitude}"
+                           Keyboard="Numeric"
+                           WidthRequest="150" />
+                </Grid>
+
+                <Grid Grid.Row="3" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <Label Grid.Column="0"
+                           Text="Radius (km):"
+                           VerticalOptions="Center" />
+                    <Slider Grid.Column="1"
+                            Minimum="1"
+                            Maximum="100"
+                            Value="{Binding RadiusKm}"
+                            VerticalOptions="Center" />
+                    <Label Grid.Column="2"
+                           Text="{Binding RadiusKm, StringFormat='{0:F0}'}"
+                           VerticalOptions="Center"
+                           FontAttributes="Bold" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Search Button -->
+        <Button Grid.Row="2"
+                Text="Search Nearby Items"
+                Command="{Binding SearchNearbyCommand}"
+                BackgroundColor="Green"
+                TextColor="White"
+                FontSize="18" />
+
+        <!-- Results List -->
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding Items}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <StackLayout Padding="20" VerticalOptions="Center">
+                    <Label Text="No nearby items found"
+                           HorizontalOptions="Center"
+                           FontSize="18"
+                           TextColor="Gray" />
+                    <Label Text="Try increasing the search radius or using a different location"
+                           HorizontalOptions="Center"
+                           FontSize="14"
+                           TextColor="Gray"
+                           Margin="0,10,0,0" />
+                </StackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,5" Padding="10" BackgroundColor="White" Stroke="LightGray" StrokeThickness="1">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="10" />
+                        </Border.StrokeShape>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NearbyItemsViewModel}}, Path=ViewItemCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
+
+                            <!-- Title and Distance -->
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{Binding Item.Title}"
+                                   FontSize="18"
+                                   FontAttributes="Bold" />
+
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding DistanceKm, Converter={StaticResource DistanceToString}}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="Blue"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center" />
+
+                            <!-- Category and Price -->
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Text="{Binding Item.Category.Name}"
+                                   FontSize="14"
+                                   TextColor="Gray"
+                                   Margin="0,5,0,0" />
+
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding Item.DailyPrice, Converter={StaticResource CurrencyToUkString}}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="Green"
+                                   HorizontalOptions="End" />
+
+                            <!-- Description -->
+                            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                   Text="{Binding Item.Description}"
+                                   FontSize="14"
+                                   LineBreakMode="TailTruncation"
+                                   MaxLines="2"
+                                   Margin="0,5,0,0" />
+
+                            <!-- Address -->
+                            <Label Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                   Text="{Binding Item.Address}"
+                                   FontSize="12"
+                                   TextColor="Gray"
+                                   Margin="0,5,0,0"
+                                   IsVisible="{Binding Item.Address, Converter={StaticResource StringIsNotNullOrEmptyConverter}}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="3"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
+    </Grid>
+</ContentPage>

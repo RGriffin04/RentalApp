@@ -31,7 +31,13 @@ public class AppDbContext : DbContext
             connectionString = config.GetConnectionString("DevelopmentConnection");
         }
 
-        optionsBuilder.UseNpgsql(connectionString);
+        optionsBuilder.UseNpgsql(
+            connectionString,
+            options => options.UseNetTopologySuite() // Enable PostGIS support
+        )
+        .ConfigureWarnings(warnings => 
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
+        );
     }
 
     public DbSet<Role> Roles { get; set; }
@@ -93,6 +99,10 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.CategoryId);
             entity.HasIndex(e => e.IsAvailable);
             entity.HasIndex(e => e.CreatedDate);
+
+            // Spatial index on location for fast geographic queries using PostGIS
+            entity.HasIndex(e => e.Location)
+                  .HasMethod("gist"); // GiST index for geography
 
             entity.Property(e => e.DailyPrice)
                   .HasPrecision(10, 2);
@@ -166,7 +176,19 @@ public class AppDbContext : DbContext
                   .HasForeignKey(r => r.RatedUserId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
+
+        // Seed initial categories
+        modelBuilder.Entity<Category>().HasData(
+            new Category { Id = 1, Name = "Electronics", Description = "Electronic devices and gadgets" },
+            new Category { Id = 2, Name = "Tools", Description = "Power tools, hand tools, and equipment" },
+            new Category { Id = 3, Name = "Vehicles", Description = "Cars, bikes, and transportation" },
+            new Category { Id = 4, Name = "Sports", Description = "Sports equipment and gear" },
+            new Category { Id = 5, Name = "Home & Garden", Description = "Home improvement and gardening equipment" },
+            new Category { Id = 6, Name = "Photography", Description = "Cameras, lenses, and photography equipment" },
+            new Category { Id = 7, Name = "Music", Description = "Musical instruments and audio equipment" },
+            new Category { Id = 8, Name = "Party & Events", Description = "Party supplies and event equipment" },
+            new Category { Id = 9, Name = "Camping & Outdoor", Description = "Camping gear and outdoor equipment" },
+            new Category { Id = 10, Name = "Other", Description = "Miscellaneous items" }
+        );
     }
-
-
 }

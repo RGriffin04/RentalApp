@@ -103,7 +103,7 @@ namespace RentalApp.ViewModels
         private async Task LogoutAsync()
         {
             await _authService.LogoutAsync();
-            await _navigationService.NavigateToAsync("LoginPage");
+            await Shell.Current.GoToAsync("//LoginPage");
 
             LogoutCommand.NotifyCanExecuteChanged();
             NavigateToProfileCommand.NotifyCanExecuteChanged();

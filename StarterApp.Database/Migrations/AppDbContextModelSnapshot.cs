@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RentalApp.Database.Data;
 
@@ -20,6 +21,7 @@ namespace RentalApp.Database.Migrations
                 .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("RentalApp.Database.Models.Category", b =>
@@ -45,6 +47,68 @@ namespace RentalApp.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("category");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Electronic devices and gadgets",
+                            Name = "Electronics"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Power tools, hand tools, and equipment",
+                            Name = "Tools"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Cars, bikes, and transportation",
+                            Name = "Vehicles"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Sports equipment and gear",
+                            Name = "Sports"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Home improvement and gardening equipment",
+                            Name = "Home & Garden"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Cameras, lenses, and photography equipment",
+                            Name = "Photography"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Musical instruments and audio equipment",
+                            Name = "Music"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Party supplies and event equipment",
+                            Name = "Party & Events"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Camping gear and outdoor equipment",
+                            Name = "Camping & Outdoor"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "Miscellaneous items",
+                            Name = "Other"
+                        });
                 });
 
             modelBuilder.Entity("RentalApp.Database.Models.Item", b =>
@@ -54,6 +118,10 @@ namespace RentalApp.Database.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
@@ -73,6 +141,9 @@ namespace RentalApp.Database.Migrations
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("boolean");
 
+                    b.Property<Point>("Location")
+                        .HasColumnType("geography (point)");
+
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
 
@@ -91,6 +162,10 @@ namespace RentalApp.Database.Migrations
                     b.HasIndex("CreatedDate");
 
                     b.HasIndex("IsAvailable");
+
+                    b.HasIndex("Location");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Location"), "gist");
 
                     b.HasIndex("OwnerId");
 

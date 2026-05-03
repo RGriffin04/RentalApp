@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Geometries;
 using RentalApp.Api.Models;
 using RentalApp.Api.Repositories;
 using RentalApp.Database.Models;
@@ -13,6 +14,8 @@ namespace RentalApp.Api.Controllers;
 public class ItemsController : ControllerBase
 {
     private readonly IItemRepository _itemRepository;
+    private static readonly GeometryFactory _geometryFactory = 
+        new GeometryFactory(new PrecisionModel(), 4326);
 
     public ItemsController(IItemRepository itemRepository)
     {
@@ -28,22 +31,7 @@ public class ItemsController : ControllerBase
         [FromQuery] bool? isAvailable = null)
     {
         var items = await _itemRepository.GetAllAsync(search, categoryId, isAvailable);
-
-        var response = items.Select(i => new ItemResponse
-        {
-            Id = i.Id,
-            Title = i.Title,
-            Description = i.Description,
-            DailyPrice = i.DailyPrice,
-            IsAvailable = i.IsAvailable,
-            CreatedDate = i.CreatedDate,
-            UpdatedDate = i.UpdatedDate,
-            OwnerId = i.OwnerId,
-            OwnerName = i.Owner.FirstName + " " + i.Owner.LastName,
-            CategoryId = i.CategoryId,
-            CategoryName = i.Category.Name
-        }).ToList();
-
+        var response = items.Select(MapToItemResponse).ToList();
         return Ok(response);
     }
 
@@ -57,20 +45,7 @@ public class ItemsController : ControllerBase
         if (item == null)
             return NotFound();
 
-        return Ok(new ItemResponse
-        {
-            Id = item.Id,
-            Title = item.Title,
-            Description = item.Description,
-            DailyPrice = item.DailyPrice,
-            IsAvailable = item.IsAvailable,
-            CreatedDate = item.CreatedDate,
-            UpdatedDate = item.UpdatedDate,
-            OwnerId = item.OwnerId,
-            OwnerName = item.Owner.FirstName + " " + item.Owner.LastName,
-            CategoryId = item.CategoryId,
-            CategoryName = item.Category.Name
-        });
+        return Ok(MapToItemResponse(item));
     }
 
     // GET: api/items/my
@@ -78,24 +53,8 @@ public class ItemsController : ControllerBase
     public async Task<ActionResult<List<ItemResponse>>> GetMyItems()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
         var items = await _itemRepository.GetByOwnerIdAsync(userId);
-
-        var response = items.Select(i => new ItemResponse
-        {
-            Id = i.Id,
-            Title = i.Title,
-            Description = i.Description,
-            DailyPrice = i.DailyPrice,
-            IsAvailable = i.IsAvailable,
-            CreatedDate = i.CreatedDate,
-            UpdatedDate = i.UpdatedDate,
-            OwnerId = i.OwnerId,
-            OwnerName = i.Owner.FirstName + " " + i.Owner.LastName,
-            CategoryId = i.CategoryId,
-            CategoryName = i.Category.Name
-        }).ToList();
-
+        var response = items.Select(MapToItemResponse).ToList();
         return Ok(response);
     }
 
@@ -120,28 +79,23 @@ public class ItemsController : ControllerBase
             CategoryId = request.CategoryId,
             OwnerId = userId,
             IsAvailable = request.IsAvailable,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.UtcNow,
+            Address = request.Address
         };
+
+        // Set location if coordinates provided
+        if (request.Latitude.HasValue && request.Longitude.HasValue)
+        {
+            item.Location = _geometryFactory.CreatePoint(
+                new Coordinate(request.Longitude.Value, request.Latitude.Value));
+        }
 
         item = await _itemRepository.CreateAsync(item);
 
         return CreatedAtAction(
             nameof(GetItem),
             new { id = item.Id },
-            new ItemResponse
-            {
-                Id = item.Id,
-                Title = item.Title,
-                Description = item.Description,
-                DailyPrice = item.DailyPrice,
-                IsAvailable = item.IsAvailable,
-                CreatedDate = item.CreatedDate,
-                UpdatedDate = item.UpdatedDate,
-                OwnerId = item.OwnerId,
-                OwnerName = item.Owner.FirstName + " " + item.Owner.LastName,
-                CategoryId = item.CategoryId,
-                CategoryName = item.Category.Name
-            });
+            MapToItemResponse(item));
     }
 
     // PUT: api/items/5
@@ -177,6 +131,16 @@ public class ItemsController : ControllerBase
         if (request.IsAvailable.HasValue)
             item.IsAvailable = request.IsAvailable.Value;
 
+        // Update location if provided
+        if (request.Latitude.HasValue && request.Longitude.HasValue)
+        {
+            item.Location = _geometryFactory.CreatePoint(
+                new Coordinate(request.Longitude.Value, request.Latitude.Value));
+        }
+
+        if (request.Address != null)
+            item.Address = request.Address;
+
         item.UpdatedDate = DateTime.UtcNow;
 
         await _itemRepository.UpdateAsync(item);
@@ -201,5 +165,68 @@ public class ItemsController : ControllerBase
         await _itemRepository.DeleteAsync(item);
 
         return NoContent();
+    }
+
+    // GET: api/items/nearby?lat={lat}&lon={lon}&radius={radius}
+    [HttpGet("nearby")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<ItemWithDistanceResponse>>> GetNearbyItems(
+        [FromQuery] double lat,
+        [FromQuery] double lon,
+        [FromQuery] double radius = 10.0) // Default 10km radius
+    {
+        if (lat < -90 || lat > 90)
+            return BadRequest("Latitude must be between -90 and 90");
+
+        if (lon < -180 || lon > 180)
+            return BadRequest("Longitude must be between -180 and 180");
+
+        if (radius <= 0 || radius > 100)
+            return BadRequest("Radius must be between 0 and 100 km");
+
+        var itemsWithDistance = await _itemRepository.GetNearbyWithDistanceAsync(lat, lon, radius);
+
+        var response = itemsWithDistance.Select(x => new ItemWithDistanceResponse
+        {
+            Id = x.Item.Id,
+            Title = x.Item.Title,
+            Description = x.Item.Description,
+            DailyPrice = x.Item.DailyPrice,
+            IsAvailable = x.Item.IsAvailable,
+            CreatedDate = x.Item.CreatedDate,
+            UpdatedDate = x.Item.UpdatedDate,
+            OwnerId = x.Item.OwnerId,
+            OwnerName = x.Item.Owner.FirstName + " " + x.Item.Owner.LastName,
+            CategoryId = x.Item.CategoryId,
+            CategoryName = x.Item.Category.Name,
+            Latitude = x.Item.Latitude,
+            Longitude = x.Item.Longitude,
+            Address = x.Item.Address,
+            DistanceKm = x.DistanceKm
+        }).ToList();
+
+        return Ok(response);
+    }
+
+    // Helper method to map Item to ItemResponse
+    private static ItemResponse MapToItemResponse(Item item)
+    {
+        return new ItemResponse
+        {
+            Id = item.Id,
+            Title = item.Title,
+            Description = item.Description,
+            DailyPrice = item.DailyPrice,
+            IsAvailable = item.IsAvailable,
+            CreatedDate = item.CreatedDate,
+            UpdatedDate = item.UpdatedDate,
+            OwnerId = item.OwnerId,
+            OwnerName = item.Owner.FirstName + " " + item.Owner.LastName,
+            CategoryId = item.CategoryId,
+            CategoryName = item.Category.Name,
+            Latitude = item.Latitude,
+            Longitude = item.Longitude,
+            Address = item.Address
+        };
     }
 }

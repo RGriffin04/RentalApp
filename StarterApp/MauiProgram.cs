@@ -4,6 +4,7 @@ using RentalApp.Database.Data;
 using RentalApp.Views;
 using System.Diagnostics;
 using RentalApp.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RentalApp;
 
@@ -20,10 +21,25 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        builder.Services.AddDbContext<AppDbContext>();
+        // Database context is NOT needed for MAUI app anymore
+        // All database operations go through the API
+        // builder.Services.AddDbContext<AppDbContext>();
 
-        builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+        // Authentication Service - Using HTTP API with JWT tokens
+        // All database calls go through the API
+        builder.Services.AddSingleton<IAuthenticationService, HttpAuthenticationService>();
+
+        // Core services
         builder.Services.AddSingleton<INavigationService, NavigationService>();
+
+        // HTTP Client for API services
+        builder.Services.AddHttpClient();
+
+        // API services
+        builder.Services.AddSingleton<IItemService, ItemService>();
+        builder.Services.AddSingleton<IRentalService, RentalService>();
+        builder.Services.AddSingleton<IRatingService, RatingService>();
+        builder.Services.AddSingleton<ILocationService, LocationService>();
 
         builder.Services.AddSingleton<AppShellViewModel>();
         builder.Services.AddSingleton<AppShell>();
@@ -41,6 +57,20 @@ public static class MauiProgram
         builder.Services.AddTransient<UserDetailViewModel>();
         builder.Services.AddSingleton<TempViewModel>();
         builder.Services.AddTransient<TempPage>();
+
+        // Marketplace ViewModels and Pages
+        builder.Services.AddTransient<ItemsListViewModel>();
+        builder.Services.AddTransient<ItemsListPage>();
+        builder.Services.AddTransient<ItemDetailViewModel>();
+        builder.Services.AddTransient<ItemDetailPage>();
+        builder.Services.AddTransient<NearbyItemsViewModel>();
+        builder.Services.AddTransient<NearbyItemsPage>();
+        builder.Services.AddTransient<CreateItemViewModel>();
+        builder.Services.AddTransient<CreateItemPage>();
+        builder.Services.AddTransient<MyItemsViewModel>();
+        builder.Services.AddTransient<MyItemsPage>();
+        builder.Services.AddTransient<RentalsViewModel>();
+        builder.Services.AddTransient<RentalsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
