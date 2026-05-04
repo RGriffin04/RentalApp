@@ -31,7 +31,7 @@ public class RentalService : BaseHttpService, IRentalService
 
     public async Task<List<Rental>> GetMyListingsAsync(string? status = null)
     {
-        var endpoint = "/api/rentals/owner";
+        var endpoint = "/api/rentals/as-owner";
 
         if (!string.IsNullOrWhiteSpace(status))
         {
@@ -60,7 +60,12 @@ public class RentalService : BaseHttpService, IRentalService
         };
 
         var rental = await PostAsync<object, Rental>("/api/rentals", request);
-        return rental ?? throw new Exception("Failed to create rental");
+
+        // If rental is null and no exception was thrown, something unexpected happened
+        if (rental == null)
+            throw new Exception("Failed to create rental - no response from server");
+
+        return rental;
     }
 
     public async Task<bool> ApproveRentalAsync(int rentalId)

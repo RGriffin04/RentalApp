@@ -10,18 +10,10 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
             <converters:StringIsNotNullOrEmptyConverter x:Key="StringIsNotNullOrEmptyConverter" />
-            <converters:BoolToYesNoConverter x:Key="BoolToYesNoConverter" />
             <converters:BoolToTextConverter x:Key="BoolToTextConverter" />
-            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
-            <converters:AvailabilityConverter x:Key="AvailabilityConverter" />
             <converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+            <converters:IntGreaterThanZeroConverter x:Key="IntGreaterThanZeroConverter" />
             <converters:StringEqualityConverter x:Key="StringEqualityConverter" />
-
-            <!-- UK Formatting Converters -->
-            <converters:DateToUkStringConverter x:Key="DateToUkString" />
-            <converters:ShortDateToUkStringConverter x:Key="ShortDateToUkString" />
-            <converters:CurrencyToUkStringConverter x:Key="CurrencyToUkString" />
-            <converters:DistanceToStringConverter x:Key="DistanceToString" />
 
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />

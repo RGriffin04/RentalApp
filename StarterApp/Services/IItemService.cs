@@ -105,3 +105,26 @@ public class ItemWithDistance
     public Item Item { get; set; } = null!;
     public double DistanceKm { get; set; }
 }
+
+/// <summary>
+/// DTO for deserializing the API response from /api/items/nearby
+/// Matches the flattened structure returned by ItemWithDistanceResponse
+/// </summary>
+internal class ItemWithDistanceDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal DailyPrice { get; set; }
+    public bool IsAvailable { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public int OwnerId { get; set; }
+    public string OwnerName { get; set; } = string.Empty;
+    public int CategoryId { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public string? Address { get; set; }
+    public double DistanceKm { get; set; }
+}

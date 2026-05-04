@@ -31,15 +31,28 @@ public class Rental
     public string Status { get; set; } = "Pending";
     
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-    
+
     public DateTime? CompletedDate { get; set; }
+
+    // Properties from API response (for display purposes when navigation properties not loaded)
+    [NotMapped]
+    public string? ItemTitle { get; set; }
+
+    [NotMapped]
+    public string? RenterName { get; set; }
+
+    [NotMapped]
+    public int? OwnerId { get; set; }
+
+    [NotMapped]
+    public string? OwnerName { get; set; }
 
     // Navigation properties
     [ForeignKey(nameof(ItemId))]
     public Item Item { get; set; } = null!;
-    
+
     [ForeignKey(nameof(RenterId))]
     public User Renter { get; set; } = null!;
-    
+
     public List<Rating> Ratings { get; set; } = new List<Rating>();
 }

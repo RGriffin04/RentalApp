@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="RentalApp.Views.RentalDetailPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RentalApp.ViewModels"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+
+            <!-- Error Message -->
+            <Border BackgroundColor="#FFEBEE"
+                    Stroke="#F44336"
+                    StrokeThickness="1"
+                    Padding="15"
+                    IsVisible="{Binding HasError}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding ErrorMessage}"
+                           TextColor="#D32F2F"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            Command="{Binding ClearErrorCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#D32F2F"
+                            FontSize="18"
+                            Padding="10,0"
+                            WidthRequest="40" />
+                </Grid>
+            </Border>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               Margin="50" />
+
+            <!-- Rental Details (visible when not loading) -->
+            <VerticalStackLayout Spacing="15" IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}">
+
+                <!-- Item Information -->
+                <Border Padding="15"
+                        Stroke="LightGray"
+                        StrokeThickness="1"
+                        BackgroundColor="#F5F5F5">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Item"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Text="{Binding Rental.ItemTitle}"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Rental Status -->
+                <Border Padding="15"
+                        Stroke="LightGray"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10">
+                        <Label Grid.Row="0" Grid.Column="0"
+                               Text="Status"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Grid.Row="0" Grid.Column="1"
+                               Text="{Binding Rental.Status}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="Green"
+                               HorizontalOptions="End" />
+                    </Grid>
+                </Border>
+
+                <!-- Rental Dates -->
+                <Border Padding="15"
+                        Stroke="LightGray"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10">
+                        <Label Grid.Row="0" Grid.Column="0"
+                               Text="Start Date"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Grid.Row="0" Grid.Column="1"
+                               Text="{Binding Rental.StartDate, StringFormat='{0:MMM dd, yyyy}'}"
+                               FontSize="16"
+                               HorizontalOptions="End" />
+
+                        <Label Grid.Row="1" Grid.Column="0"
+                               Text="End Date"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Grid.Row="1" Grid.Column="1"
+                               Text="{Binding Rental.EndDate, StringFormat='{0:MMM dd, yyyy}'}"
+                               FontSize="16"
+                               HorizontalOptions="End" />
+
+                        <BoxView Grid.Row="2" Grid.ColumnSpan="2"
+                                 HeightRequest="1"
+                                 Color="LightGray"
+                                 Margin="0,5" />
+
+                        <Label Grid.Row="3" Grid.Column="0"
+                               Text="Duration"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Grid.Row="3" Grid.Column="1"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               HorizontalOptions="End">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{}{0} day(s)">
+                                    <Binding Path="RentalDays" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+                    </Grid>
+                </Border>
+
+                <!-- People Involved -->
+                <Border Padding="15"
+                        Stroke="LightGray"
+                        StrokeThickness="1">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10">
+                        <Label Grid.Row="0" Grid.Column="0"
+                               Text="Renter"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Grid.Row="0" Grid.Column="1"
+                               Text="{Binding Rental.RenterName}"
+                               FontSize="16"
+                               HorizontalOptions="End" />
+
+                        <Label Grid.Row="1" Grid.Column="0"
+                               Text="Owner"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Grid.Row="1" Grid.Column="1"
+                               Text="{Binding Rental.OwnerName}"
+                               FontSize="16"
+                               HorizontalOptions="End" />
+                    </Grid>
+                </Border>
+
+                <!-- Pricing -->
+                <Border Padding="15"
+                        Stroke="Green"
+                        StrokeThickness="2"
+                        BackgroundColor="#E8F5E9">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="Total Price"
+                               FontSize="18"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Rental.TotalPrice, StringFormat='£{0:N2}'}"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="Green"
+                               HorizontalOptions="End" />
+                    </Grid>
+                </Border>
+
+                <!-- Created Date -->
+                <HorizontalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Label Text="Requested on"
+                           FontSize="12"
+                           TextColor="Gray" />
+                    <Label Text="{Binding Rental.CreatedDate, StringFormat='{0:MMM dd, yyyy}'}"
+                           FontSize="12"
+                           TextColor="Gray" />
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

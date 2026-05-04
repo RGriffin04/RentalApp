@@ -51,7 +51,7 @@
                            FontSize="24"
                            FontAttributes="Bold" />
                     <Label Grid.Column="1"
-                           Text="{Binding Item.DailyPrice, Converter={StaticResource CurrencyToUkString}}"
+                           Text="{Binding Item.DailyPrice, StringFormat='£{0:N2}'}"
                            FontSize="24"
                            FontAttributes="Bold"
                            TextColor="Green"
@@ -64,28 +64,52 @@
                        HorizontalOptions="End"
                        Margin="0,-15,0,0" />
 
-                <!-- Category and Availability -->
-                <Grid ColumnDefinitions="*,Auto">
-                    <Label Grid.Column="0"
-                           Text="{Binding Item.Category.Name}"
+                <!-- Category -->
+                <Label Text="{Binding Item.CategoryName}"
+                       FontSize="16"
+                       TextColor="Gray" />
+
+                <!-- Owner -->
+                <HorizontalStackLayout Spacing="5">
+                    <Label Text="Owner:"
                            FontSize="16"
                            TextColor="Gray" />
-                    <Label Grid.Column="1"
-                           Text="{Binding Item.IsAvailable, Converter={StaticResource BoolToYesNoConverter}}"
+                    <Label Text="{Binding Item.OwnerName}"
                            FontSize="16"
                            FontAttributes="Bold"
-                           TextColor="Green"
-                           HorizontalOptions="End" />
-                </Grid>
+                           TextColor="#2196F3" />
+                </HorizontalStackLayout>
 
-                <!-- Ratings -->
-                <Button Text="{Binding RatingCount, StringFormat='⭐ {0:F1} ({1} ratings)'}"
-                        Command="{Binding ViewRatingsCommand}"
-                        BackgroundColor="Transparent"
+                <!-- Ratings Section -->
+                <!-- Show ratings button when ratings exist -->
+                <Button BackgroundColor="Transparent"
                         TextColor="Gray"
                         HorizontalOptions="Start"
                         Padding="0"
-                        IsVisible="{Binding RatingCount, Converter={StaticResource IntToBoolConverter}}" />
+                        Command="{Binding ViewRatingsCommand}">
+                    <Button.Text>
+                        <MultiBinding StringFormat="⭐ {0:F1} ({1} ratings)">
+                            <Binding Path="AverageRating" />
+                            <Binding Path="RatingCount" />
+                        </MultiBinding>
+                    </Button.Text>
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding RatingCount}" Value="0">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <!-- Show "no reviews" message when no ratings -->
+                <HorizontalStackLayout Spacing="5" IsVisible="False">
+                    <Label Text="⭐" FontSize="16" TextColor="Gray" />
+                    <Label Text="No reviews yet" FontSize="16" TextColor="Gray" FontAttributes="Italic" />
+                    <HorizontalStackLayout.Triggers>
+                        <DataTrigger TargetType="HorizontalStackLayout" Binding="{Binding RatingCount}" Value="0">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </HorizontalStackLayout.Triggers>
+                </HorizontalStackLayout>
 
                 <!-- Description -->
                 <Label Text="Description"
@@ -166,7 +190,7 @@
                                        FontSize="18"
                                        FontAttributes="Bold" />
                                 <Label Grid.Row="1" Grid.Column="1"
-                                       Text="{Binding TotalPrice, Converter={StaticResource CurrencyToUkString}}"
+                                       Text="{Binding TotalPrice, StringFormat='£{0:N2}'}"
                                        FontSize="18"
                                        FontAttributes="Bold"
                                        TextColor="Green"

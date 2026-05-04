@@ -9,7 +9,7 @@ services:
       - nuget_cache:/root/.nuget/packages
     environment:
       - CONNECTION_STRING=Host=db;Port=5432;Username=app_user;Password=app_password;Database=appdb
-    command: bash -c "cd /workspace && dotnet run --project StarterApp.Migrations/StarterApp.Migrations.csproj"
+    command: bash -c "cd /workspace/StarterApp.Database && dotnet ef database update --connection \"$CONNECTION_STRING\""
     depends_on:
       db:
         condition: service_healthy
@@ -46,7 +46,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Username=app_user;Password=app_password;Database=appdb
       - JWT_SECRET=CHANGE_ME_TO_A_LONG_RANDOM_SECRET_AT_LEAST_32_CHARS
-    command: bash -c "cd /workspace/RentalApp.API && dotnet watch run --no-launch-profile"
+    command: bash -c "find /workspace -type d -name 'obj' -o -name 'bin' | xargs rm -rf; cd /workspace/RentalApp.API && dotnet watch run --no-launch-profile"
     depends_on:
       db:
         condition: service_healthy

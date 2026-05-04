@@ -6,12 +6,6 @@
              xmlns:models="clr-namespace:RentalApp.Database.Models;assembly=RentalApp.Database"
              Title="{Binding Title}">
 
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Nearby" Command="{Binding GoToNearbySearchCommand}" />
-        <ToolbarItem Text="My Items" Command="{Binding GoToMyItemsCommand}" />
-        <ToolbarItem Text="Rentals" Command="{Binding GoToRentalsCommand}" />
-    </ContentPage.ToolbarItems>
-
     <Grid RowDefinitions="Auto,Auto,*" Padding="10">
 
         <!-- Error Message -->
@@ -43,7 +37,7 @@
         </Border>
 
         <!-- Filters Section -->
-        <Grid Grid.Row="1" RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10" ColumnSpacing="10" Margin="0,0,0,10">
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10" ColumnSpacing="10" Margin="0,0,0,10">
 
             <!-- Search Bar -->
             <SearchBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
@@ -64,6 +58,13 @@
                 <Label Text="Available" VerticalOptions="Center" />
                 <Switch IsToggled="{Binding ShowOnlyAvailable}" Toggled="OnAvailableToggled" />
             </HorizontalStackLayout>
+
+            <!-- Nearby Search Button -->
+            <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                    Text="📍 Search Nearby Items"
+                    Command="{Binding GoToNearbySearchCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White" />
         </Grid>
 
         <!-- Items List with Pull to Refresh -->
@@ -105,7 +106,7 @@
                                        FontAttributes="Bold" />
 
                                 <Label Grid.Row="0" Grid.Column="1"
-                                       Text="{Binding DailyPrice, Converter={StaticResource CurrencyToUkString}}"
+                                       Text="{Binding DailyPrice, StringFormat='£{0:N2}'}"
                                        FontSize="18"
                                        FontAttributes="Bold"
                                        TextColor="Green"

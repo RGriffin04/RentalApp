@@ -69,24 +69,31 @@ public abstract class BaseHttpService
     /// </summary>
     protected async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
     {
-        try
+        AddAuthorizationHeader();
+        var json = JsonSerializer.Serialize(data, JsonOptions);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await _httpClient.PostAsync(endpoint, content);
+
+        if (!response.IsSuccessStatusCode)
         {
-            AddAuthorizationHeader();
-            var json = JsonSerializer.Serialize(data, JsonOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            // Try to extract error message from response
+            var errorContent = await response.Content.ReadAsStringAsync();
 
-            var response = await _httpClient.PostAsync(endpoint, content);
+            // If the response is a simple string (like BadRequest returns), use it directly
+            if (!string.IsNullOrWhiteSpace(errorContent) && 
+                !errorContent.StartsWith("{") && 
+                !errorContent.StartsWith("["))
+            {
+                throw new HttpRequestException(errorContent);
+            }
 
-            if (!response.IsSuccessStatusCode)
-                return default;
-
-            var responseJson = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<TResponse>(responseJson, JsonOptions);
+            // Otherwise throw with status code
+            throw new HttpRequestException($"Request failed with status code {response.StatusCode}");
         }
-        catch (Exception)
-        {
-            return default;
-        }
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<TResponse>(responseJson, JsonOptions);
     }
 
     /// <summary>

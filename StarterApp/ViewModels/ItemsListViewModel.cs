@@ -112,6 +112,13 @@ public partial class ItemsListViewModel : BaseViewModel
             categoryId: categoryId,
             isAvailable: ShowOnlyAvailable ? true : null);
 
+        // If no filters are applied, show only top 5 items by default for clean minimal UI
+        bool hasFilters = categoryId.HasValue || !string.IsNullOrWhiteSpace(search) || !ShowOnlyAvailable;
+        if (!hasFilters && itemsList.Count > 5)
+        {
+            itemsList = itemsList.Take(5).ToList();
+        }
+
         Items.Clear();
         foreach (var item in itemsList)
         {
@@ -190,19 +197,5 @@ public partial class ItemsListViewModel : BaseViewModel
     private async Task CreateItemAsync()
     {
         await _navigationService.NavigateToAsync("CreateItemPage");
-    }
-
-    /// @brief Navigates to my items page
-    [RelayCommand]
-    private async Task GoToMyItemsAsync()
-    {
-        await _navigationService.NavigateToAsync("MyItemsPage");
-    }
-
-    /// @brief Navigates to rentals page
-    [RelayCommand]
-    private async Task GoToRentalsAsync()
-    {
-        await _navigationService.NavigateToAsync("RentalsPage");
     }
 }

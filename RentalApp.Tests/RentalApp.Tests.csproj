@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="FluentAssertions" Version="8.9.0" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.0-rc.1.25239.12" />
+    <PackageReference Include="Microsoft.Maui.Controls.Core" Version="10.0.0-rc.1.25239.12" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StarterApp.Database\RentalApp.Database.csproj" />
+    <ProjectReference Include="..\RentalApp.API\RentalApp.API.csproj" />
+  </ItemGroup>
+
+  <!-- Include easy-to-test ViewModels and Services from StarterApp as compile-time links -->
+  <ItemGroup>
+    <!-- Include all services -->
+    <Compile Include="..\StarterApp\Services\**\*.cs" Link="Services\%(RecursiveDir)%(Filename)%(Extension)" />
+
+    <!-- Include base ViewModel -->
+    <Compile Include="..\StarterApp\ViewModels\BaseViewModel.cs" Link="ViewModels\BaseViewModel.cs" />
+
+    <!-- Include easy-to-test ViewModels (no DisplayAlerts) -->
+    <Compile Include="..\StarterApp\ViewModels\RentalsViewModel.cs" Link="ViewModels\RentalsViewModel.cs" />
+    <Compile Include="..\StarterApp\ViewModels\MyItemsViewModel.cs" Link="ViewModels\MyItemsViewModel.cs" />
+    <Compile Include="..\StarterApp\ViewModels\ItemsListViewModel.cs" Link="ViewModels\ItemsListViewModel.cs" />
+    <Compile Include="..\StarterApp\ViewModels\NearbyItemsViewModel.cs" Link="ViewModels\NearbyItemsViewModel.cs" />
+  </ItemGroup>
+
+</Project>

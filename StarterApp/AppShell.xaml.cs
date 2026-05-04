@@ -17,6 +17,8 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("ItemDetailPage", typeof(ItemDetailPage));
 		Routing.RegisterRoute("CreateItemPage", typeof(CreateItemPage));
 		Routing.RegisterRoute("EditItemPage", typeof(CreateItemPage)); // Same page, different mode
+		Routing.RegisterRoute("CreateReviewPage", typeof(CreateReviewPage));
+		Routing.RegisterRoute("RentalDetailPage", typeof(RentalDetailPage));
 
 		// Hide flyout on login/register pages
 		Navigated += (sender, e) =>
@@ -37,7 +39,7 @@ public partial class AppShell : Shell
 	{
 		base.OnNavigated(args);
 
-		// Navigate to login page on first navigation
+		// Navigate to Browse Items tab on first navigation (after app launch)
 		if (_isInitialNavigation)
 		{
 			_isInitialNavigation = false;

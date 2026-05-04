@@ -40,7 +40,7 @@
         <RefreshView Grid.Row="1"
                      IsRefreshing="{Binding IsRefreshing}"
                      Command="{Binding RefreshCommand}">
-            <CollectionView ItemsSource="{Binding Items}"
+            <CollectionView ItemsSource="{Binding ItemsWithRentals}"
                             SelectionMode="None"
                             Margin="15">
                 <CollectionView.EmptyView>
@@ -61,68 +61,168 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Padding="15"
-                               Margin="0,5"
-                               CornerRadius="10"
-                               BorderColor="LightGray"
-                               HasShadow="True">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=ViewItemCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="0" Margin="0,5">
+                            <!-- Item Card -->
+                            <Frame Padding="15"
+                                   CornerRadius="10"
+                                   BorderColor="LightGray"
+                                   HasShadow="True">
 
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
-                                <!-- Title -->
-                                <Label Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Title}"
-                                       FontSize="18"
-                                       FontAttributes="Bold" />
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                                    <!-- Title -->
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Item.Title}"
+                                           FontSize="18"
+                                           FontAttributes="Bold" />
 
-                                <!-- Price -->
-                                <Label Grid.Row="0" Grid.Column="1"
-                                       Text="{Binding DailyPrice, Converter={StaticResource CurrencyToUkString}}"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="Green"
-                                       HorizontalOptions="End" />
-
-                                <!-- Category -->
-                                <Label Grid.Row="1" Grid.Column="0"
-                                       Grid.ColumnSpan="2"
-                                       Text="{Binding Category.Name}"
-                                       FontSize="14"
-                                       TextColor="Gray"
-                                       Margin="0,5,0,0" />
-
-                                <!-- Description -->
-                                <Label Grid.Row="2" Grid.Column="0"
-                                       Grid.ColumnSpan="2"
-                                       Text="{Binding Description}"
-                                       FontSize="14"
-                                       LineBreakMode="TailTruncation"
-                                       MaxLines="2"
-                                       Margin="0,5,0,0" />
-
-                                <!-- Availability Status -->
-                                <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
-                                      ColumnDefinitions="Auto,*" Margin="0,10,0,0">
-                                    <BoxView Grid.Column="0"
-                                             WidthRequest="12"
-                                             HeightRequest="12"
-                                             CornerRadius="6"
-                                             VerticalOptions="Center"
-                                             Color="{Binding IsAvailable, Converter={StaticResource BoolToColorConverter}}" />
-                                    <Label Grid.Column="1"
-                                           Text="{Binding IsAvailable, Converter={StaticResource AvailabilityConverter}}"
-                                           FontSize="14"
+                                    <!-- Price -->
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="{Binding Item.DailyPrice, StringFormat='£{0:N2}'}"
+                                           FontSize="18"
                                            FontAttributes="Bold"
-                                           VerticalOptions="Center"
-                                           Margin="8,0,0,0"
-                                           TextColor="{Binding IsAvailable, Converter={StaticResource BoolToColorConverter}}" />
+                                           TextColor="Green"
+                                           HorizontalOptions="End" />
+
+                                    <!-- Category -->
+                                    <Label Grid.Row="1" Grid.Column="0"
+                                           Grid.ColumnSpan="2"
+                                           Text="{Binding Item.Category.Name}"
+                                           FontSize="14"
+                                           TextColor="Gray"
+                                           Margin="0,5,0,0" />
+
+                                    <!-- Description -->
+                                    <Label Grid.Row="2" Grid.Column="0"
+                                           Grid.ColumnSpan="2"
+                                           Text="{Binding Item.Description}"
+                                           FontSize="14"
+                                           LineBreakMode="TailTruncation"
+                                                   MaxLines="2"
+                                                   Margin="0,5,0,0" />
+
+                                           <!-- Action Buttons (Edit/Delete) -->
+                                           <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                          ColumnDefinitions="*,*,Auto" ColumnSpacing="8" Margin="0,10,0,0">
+                                        <Button Grid.Column="0"
+                                                Text="✏️ Edit"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=EditItemCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#2196F3"
+                                                TextColor="White"
+                                                FontSize="14"
+                                                Padding="10,5" />
+
+                                        <Button Grid.Column="1"
+                                                Text="🗑️ Delete"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=DeleteItemCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#F44336"
+                                                TextColor="White"
+                                                FontSize="14"
+                                                Padding="10,5" />
+
+                                        <Button Grid.Column="2"
+                                                Text="👁️ View"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=ViewItemCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#757575"
+                                                TextColor="White"
+                                                FontSize="14"
+                                                Padding="10,5"
+                                                WidthRequest="80" />
+                                    </Grid>
+
+                                    <!-- Rental Requests Section Header (if any exist) -->
+                                    <Label Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="📋 Rental Requests:"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#FFA726"
+                                           Margin="0,15,0,5"
+                                           IsVisible="{Binding Rentals.Count, Converter={StaticResource IntGreaterThanZeroConverter}}" />
                                 </Grid>
-                            </Grid>
-                        </Frame>
+                            </Frame>
+
+                            <!-- Rental Requests List (Always Visible if any exist) -->
+                            <VerticalStackLayout Spacing="5"
+                                                 Margin="10,0,10,0"
+                                                 IsVisible="{Binding Rentals.Count, Converter={StaticResource IntGreaterThanZeroConverter}}">
+                                <BindableLayout.ItemsSource>
+                                    <Binding Path="Rentals" />
+                                </BindableLayout.ItemsSource>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="12"
+                                                BackgroundColor="#FFF3E0"
+                                                Stroke="#FFA726"
+                                                StrokeThickness="1"
+                                                Margin="0,2">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="8" />
+                                            </Border.StrokeShape>
+
+                                            <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8">
+                                                <!-- Renter Name and Status -->
+                                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                                    <Label Grid.Column="0"
+                                                           Text="{Binding RenterName, StringFormat='👤 {0}'}"
+                                                           FontSize="16"
+                                                           FontAttributes="Bold" />
+                                                    <Label Grid.Column="1"
+                                                           Text="{Binding Status}"
+                                                           FontSize="14"
+                                                           FontAttributes="Bold"
+                                                           TextColor="Orange"
+                                                           HorizontalOptions="End" />
+                                                </Grid>
+
+                                                <!-- Dates -->
+                                                <Label Grid.Row="1"
+                                                       Text="{Binding StartDate, StringFormat='📅 From: {0:dd/MM/yyyy}'}"
+                                                       FontSize="14" />
+                                                <Label Grid.Row="2"
+                                                       Text="{Binding EndDate, StringFormat='📅 To: {0:dd/MM/yyyy}'}"
+                                                       FontSize="14" />
+
+                                                <!-- Action Buttons - Different layouts based on status -->
+                                                <VerticalStackLayout Spacing="5" Margin="0,8,0,0">
+                                                    <!-- Pending: Show Approve and Reject -->
+                                                    <HorizontalStackLayout Spacing="8" 
+                                                                           IsVisible="{Binding Status, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Pending}">
+                                                        <Button Text="✓ Approve"
+                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=ApproveRentalCommand}"
+                                                                CommandParameter="{Binding .}"
+                                                                BackgroundColor="Green"
+                                                                TextColor="White"
+                                                                FontSize="12"
+                                                                Padding="10,5"
+                                                                HorizontalOptions="FillAndExpand" />
+
+                                                        <Button Text="✕ Reject"
+                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=RejectRentalCommand}"
+                                                                CommandParameter="{Binding .}"
+                                                                BackgroundColor="Red"
+                                                                TextColor="White"
+                                                                FontSize="12"
+                                                                Padding="10,5"
+                                                                HorizontalOptions="FillAndExpand" />
+                                                    </HorizontalStackLayout>
+
+                                                    <!-- Complete button - Always visible -->
+                                                    <Button Text="✓ Complete Rental"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=CompleteRentalCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            BackgroundColor="Blue"
+                                                            TextColor="White"
+                                                            FontSize="12"
+                                                            Padding="10,5" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

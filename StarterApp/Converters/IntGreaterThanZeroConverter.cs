@@ -3,17 +3,17 @@ using System.Globalization;
 namespace RentalApp.Converters;
 
 /// <summary>
-/// Converter that converts a boolean to "Available" or "Unavailable" text
+/// Converts an integer to a boolean (true if greater than zero)
 /// </summary>
-public class BoolToYesNoConverter : IValueConverter
+public class IntGreaterThanZeroConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is bool boolValue)
+        if (value is int intValue)
         {
-            return boolValue ? "Available" : "Unavailable";
+            return intValue > 0;
         }
-        return "Unknown";
+        return false;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

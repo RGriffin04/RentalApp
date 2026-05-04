@@ -62,6 +62,20 @@ public class Item
     [NotMapped]
     public double? Longitude => Location?.X;
 
+    /// <summary>
+    /// Category name from API response (for display purposes)
+    /// Used when Category navigation property is not loaded
+    /// </summary>
+    [NotMapped]
+    public string? CategoryName { get; set; }
+
+    /// <summary>
+    /// Owner full name from API response (for display purposes)
+    /// Used when Owner navigation property is not loaded
+    /// </summary>
+    [NotMapped]
+    public string? OwnerName { get; set; }
+
     // Navigation properties
     [ForeignKey(nameof(OwnerId))]
     public User Owner { get; set; } = null!;

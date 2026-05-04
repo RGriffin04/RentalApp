@@ -5,6 +5,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RentalApp.Database.Models;
 using RentalApp.Services;
 using System.Collections.ObjectModel;
 
@@ -166,11 +167,11 @@ public partial class NearbyItemsViewModel : BaseViewModel
     /// @brief Navigates to item detail page
     /// @param item The item to view
     [RelayCommand]
-    private async Task ViewItemAsync(ItemWithDistance item)
+    private async Task ViewItemAsync(Item item)
     {
-        if (item?.Item == null)
+        if (item == null)
             return;
 
-        await _navigationService.NavigateToAsync($"ItemDetailPage?itemId={item.Item.Id}");
+        await _navigationService.NavigateToAsync($"ItemDetailPage?itemId={item.Id}");
     }
 }

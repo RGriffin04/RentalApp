@@ -44,8 +44,38 @@ public class ItemService : BaseHttpService, IItemService
     public async Task<List<ItemWithDistance>> GetNearbyItemsAsync(double latitude, double longitude, double radiusKm)
     {
         var endpoint = $"/api/items/nearby?lat={latitude}&lon={longitude}&radius={radiusKm}";
-        var items = await GetAsync<List<ItemWithDistance>>(endpoint);
-        return items ?? new List<ItemWithDistance>();
+        var dtos = await GetAsync<List<ItemWithDistanceDto>>(endpoint);
+
+        if (dtos == null || dtos.Count == 0)
+            return new List<ItemWithDistance>();
+
+        // Map DTOs to ItemWithDistance objects
+        var result = dtos.Select(dto => new ItemWithDistance
+        {
+            DistanceKm = dto.DistanceKm,
+            Item = new Item
+            {
+                Id = dto.Id,
+                Title = dto.Title,
+                Description = dto.Description,
+                DailyPrice = dto.DailyPrice,
+                IsAvailable = dto.IsAvailable,
+                CreatedDate = dto.CreatedDate,
+                UpdatedDate = dto.UpdatedDate,
+                OwnerId = dto.OwnerId,
+                CategoryId = dto.CategoryId,
+                Address = dto.Address,
+                CategoryName = dto.CategoryName,
+                OwnerName = dto.OwnerName,
+                Category = new Category
+                {
+                    Id = dto.CategoryId,
+                    Name = dto.CategoryName
+                }
+            }
+        }).ToList();
+
+        return result;
     }
 
     public async Task<List<Item>> GetMyItemsAsync()

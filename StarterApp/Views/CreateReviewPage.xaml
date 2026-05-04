@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="RentalApp.Views.CreateReviewPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RentalApp.ViewModels"
+             x:Name="page"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+
+            <!-- Error Message -->
+            <Border BackgroundColor="#FFEBEE"
+                    Stroke="#F44336"
+                    StrokeThickness="1"
+                    Padding="15"
+                    IsVisible="{Binding HasError}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding ErrorMessage}"
+                           TextColor="#D32F2F"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            Command="{Binding ClearErrorCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#D32F2F"
+                            FontSize="18"
+                            Padding="10,0"
+                            WidthRequest="40" />
+                </Grid>
+            </Border>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               Margin="50" />
+
+            <!-- Review Form (visible when not loading) -->
+            <VerticalStackLayout Spacing="15" IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}">
+
+                <!-- Rental Info -->
+                <Border Padding="15"
+                        Stroke="LightGray"
+                        StrokeThickness="1"
+                        BackgroundColor="#F5F5F5">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Rental Item"
+                               FontSize="14"
+                               TextColor="Gray" />
+                        <Label Text="{Binding Rental.ItemTitle}"
+                               FontSize="18"
+                               FontAttributes="Bold" />
+                        <Label TextColor="Gray" FontSize="14">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding Rental.StartDate, StringFormat='{0:MMM dd, yyyy}'}" />
+                                    <Span Text=" - " />
+                                    <Span Text="{Binding Rental.EndDate, StringFormat='{0:MMM dd, yyyy}'}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Rating Section -->
+                <Label Text="Your Rating"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       Margin="0,10,0,0" />
+
+                <!-- Star rating using Picker -->
+                <Picker x:Name="RatingPicker"
+                        Title="Select Rating"
+                        HorizontalOptions="Center"
+                        WidthRequest="200"
+                        SelectedIndexChanged="OnRatingChanged">
+                    <Picker.Items>
+                        <x:String>1 Star ⭐</x:String>
+                        <x:String>2 Stars ⭐⭐</x:String>
+                        <x:String>3 Stars ⭐⭐⭐</x:String>
+                        <x:String>4 Stars ⭐⭐⭐⭐</x:String>
+                        <x:String>5 Stars ⭐⭐⭐⭐⭐</x:String>
+                    </Picker.Items>
+                </Picker>
+
+                <!-- Selected stars display -->
+                <Label HorizontalOptions="Center" FontSize="32">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding Stars}" Value="1">
+                            <Setter Property="Text" Value="⭐" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding Stars}" Value="2">
+                            <Setter Property="Text" Value="⭐⭐" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding Stars}" Value="3">
+                            <Setter Property="Text" Value="⭐⭐⭐" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding Stars}" Value="4">
+                            <Setter Property="Text" Value="⭐⭐⭐⭐" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding Stars}" Value="5">
+                            <Setter Property="Text" Value="⭐⭐⭐⭐⭐" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+
+                <!-- Comment Section -->
+                <Label Text="Your Review (Optional)"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       Margin="0,10,0,0" />
+
+                <Editor Text="{Binding Comment}"
+                        Placeholder="Share your experience with this rental..."
+                        HeightRequest="150"
+                        MaxLength="500"
+                        AutoSize="TextChanges" />
+
+                <!-- Submit Button -->
+                <Button Text="Submit Review"
+                        Command="{Binding SubmitReviewCommand}"
+                        BackgroundColor="#4CAF50"
+                        TextColor="White"
+                        FontSize="18"
+                        Padding="15"
+                        Margin="0,20,0,0"
+                        IsEnabled="{Binding HasExistingRating, Converter={StaticResource InvertedBoolConverter}}" />
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

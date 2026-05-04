@@ -23,14 +23,6 @@ public partial class RentalsViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<Rental> _myRentals = new();
 
-    /// @brief Collection of rentals for items user owns
-    [ObservableProperty]
-    private ObservableCollection<Rental> _myListings = new();
-
-    /// @brief Current tab index (0=My Rentals, 1=My Listings)
-    [ObservableProperty]
-    private int _selectedTabIndex;
-
     /// @brief Whether data is being refreshed
     [ObservableProperty]
     private bool _isRefreshing;
@@ -65,21 +57,7 @@ public partial class RentalsViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            // Load rentals as renter
-            var myRentals = await _rentalService.GetMyRentalsAsync();
-            MyRentals.Clear();
-            foreach (var rental in myRentals)
-            {
-                MyRentals.Add(rental);
-            }
-
-            // Load rentals as owner
-            var myListings = await _rentalService.GetMyListingsAsync();
-            MyListings.Clear();
-            foreach (var rental in myListings)
-            {
-                MyListings.Add(rental);
-            }
+            await ReloadDataInternalAsync();
         }
         catch (Exception ex)
         {
@@ -88,6 +66,18 @@ public partial class RentalsViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    /// @brief Internal method to reload data without IsBusy check
+    private async Task ReloadDataInternalAsync()
+    {
+        // Load rentals as renter
+        var myRentals = await _rentalService.GetMyRentalsAsync();
+        MyRentals.Clear();
+        foreach (var rental in myRentals)
+        {
+            MyRentals.Add(rental);
         }
     }
 
@@ -130,7 +120,7 @@ public partial class RentalsViewModel : BaseViewModel
 
             if (success)
             {
-                await LoadDataAsync();
+                await ReloadDataInternalAsync();
             }
             else
             {
@@ -140,72 +130,6 @@ public partial class RentalsViewModel : BaseViewModel
         catch (Exception ex)
         {
             SetError($"Failed to cancel rental: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    /// @brief Approves a rental (owner action)
-    [RelayCommand]
-    private async Task ApproveRentalAsync(Rental rental)
-    {
-        if (rental == null || IsBusy)
-            return;
-
-        try
-        {
-            IsBusy = true;
-            ClearError();
-
-            var success = await _rentalService.ApproveRentalAsync(rental.Id);
-
-            if (success)
-            {
-                await LoadDataAsync();
-            }
-            else
-            {
-                SetError("Failed to approve rental.");
-            }
-        }
-        catch (Exception ex)
-        {
-            SetError($"Failed to approve rental: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    /// @brief Completes a rental (owner action)
-    [RelayCommand]
-    private async Task CompleteRentalAsync(Rental rental)
-    {
-        if (rental == null || IsBusy)
-            return;
-
-        try
-        {
-            IsBusy = true;
-            ClearError();
-
-            var success = await _rentalService.CompleteRentalAsync(rental.Id);
-
-            if (success)
-            {
-                await LoadDataAsync();
-            }
-            else
-            {
-                SetError("Failed to complete rental.");
-            }
-        }
-        catch (Exception ex)
-        {
-            SetError($"Failed to complete rental: {ex.Message}");
         }
         finally
         {
@@ -231,15 +155,5 @@ public partial class RentalsViewModel : BaseViewModel
             return;
 
         await _navigationService.NavigateToAsync($"RentalDetailPage?rentalId={rental.Id}");
-    }
-
-    /// @brief Changes the active tab
-    [RelayCommand]
-    private void SelectTab(string tabIndex)
-    {
-        if (int.TryParse(tabIndex, out int index))
-        {
-            SelectedTabIndex = index;
-        }
     }
 }

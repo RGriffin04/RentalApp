@@ -120,7 +120,7 @@
 
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NearbyItemsViewModel}}, Path=ViewItemCommand}"
-                                                  CommandParameter="{Binding .}" />
+                                                  CommandParameter="{Binding Item}" />
                         </Border.GestureRecognizers>
 
                         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto">
@@ -132,7 +132,7 @@
                                    FontAttributes="Bold" />
 
                             <Label Grid.Row="0" Grid.Column="1"
-                                   Text="{Binding DistanceKm, Converter={StaticResource DistanceToString}}"
+                                   Text="{Binding DistanceKm, StringFormat='{0:F1} km'}"
                                    FontSize="14"
                                    FontAttributes="Bold"
                                    TextColor="Blue"
@@ -147,7 +147,7 @@
                                    Margin="0,5,0,0" />
 
                             <Label Grid.Row="1" Grid.Column="1"
-                                   Text="{Binding Item.DailyPrice, Converter={StaticResource CurrencyToUkString}}"
+                                   Text="{Binding Item.DailyPrice, StringFormat='£{0:F2}/day'}"
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    TextColor="Green"

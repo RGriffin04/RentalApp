@@ -7,6 +7,10 @@ RUN wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh \
     && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
     && rm dotnet-install.sh
 
+# Install EF Core tools
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
 # Install Java JDK (required for Android SDK) and unzip
 RUN apt-get update && apt-get install -y openjdk-21-jdk unzip \
     && ln -sfn "$(dirname $(dirname $(readlink -f $(which javac))))" /usr/lib/jvm/java-21

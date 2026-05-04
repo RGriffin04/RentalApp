@@ -203,41 +203,18 @@ public partial class ItemDetailViewModel : BaseViewModel
                 EndDate, 
                 TotalPrice);
 
-            if (rental != null)
-            {
-                // Navigate to rentals page to see the new rental
-                await _navigationService.NavigateToAsync("//RentalsPage");
-            }
-            else
-            {
-                SetError("Failed to create rental. The item may no longer be available or there is a scheduling conflict.");
-            }
+            // Navigate to rentals page to see the new rental
+            await _navigationService.NavigateToAsync("//RentalsPage");
+        }
+        catch (HttpRequestException httpEx)
+        {
+            // Display the actual error message from the API
+            SetError(httpEx.Message);
         }
         catch (Exception ex)
         {
-            // Parse API error messages for user-friendly display
-            var errorMessage = ex.Message;
-
-            if (errorMessage.Contains("cannot rent your own item", StringComparison.OrdinalIgnoreCase))
-            {
-                SetError("You cannot rent your own item. You already own this!");
-            }
-            else if (errorMessage.Contains("not available", StringComparison.OrdinalIgnoreCase))
-            {
-                SetError("This item is no longer available for rent.");
-            }
-            else if (errorMessage.Contains("overlapping", StringComparison.OrdinalIgnoreCase))
-            {
-                SetError("This item is already booked for these dates. Please choose different dates.");
-            }
-            else if (errorMessage.Contains("past", StringComparison.OrdinalIgnoreCase))
-            {
-                SetError("Start date cannot be in the past.");
-            }
-            else
-            {
-                SetError("Unable to create rental. Please check your dates and try again.");
-            }
+            // Fallback for unexpected errors
+            SetError($"Unable to create rental: {ex.Message}");
         }
         finally
         {
