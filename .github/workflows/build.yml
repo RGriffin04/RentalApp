@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
     - uses: actions/checkout@v4
@@ -27,6 +30,44 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Test
-      run: dotnet test --configuration Release --no-build
+    - name: Test with coverage
+      run: |
+        dotnet test --configuration Release --no-build `
+          --collect:"XPlat Code Coverage" `
+          --results-directory ./coverage `
+          --logger "trx;LogFileName=test-results.trx" `
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+    - name: Install ReportGenerator
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+    - name: Generate coverage report
+      run: |
+        reportgenerator `
+          -reports:./coverage/**/coverage.opencover.xml `
+          -targetdir:./coverage-report `
+          -reporttypes:"Html;MarkdownSummaryGithub;Cobertura"
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: ./coverage-report
+
+    - name: Add coverage PR comment
+      if: github.event_name == 'pull_request'
+      run: |
+        if (Test-Path ./coverage-report/SummaryGithub.md) {
+          $summary = Get-Content ./coverage-report/SummaryGithub.md -Raw
+          "## Test Coverage Report" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        }
+      shell: pwsh
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage-report/Cobertura.xml
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
       continue-on-error: true

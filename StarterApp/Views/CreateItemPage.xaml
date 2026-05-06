@@ -58,13 +58,7 @@
                     Placeholder="Describe your item..."
                     HeightRequest="120" />
 
-            <!-- Availability -->
-            <HorizontalStackLayout Spacing="10">
-                <Label Text="Available for rent"
-                       FontSize="16"
-                       VerticalOptions="Center" />
-                <Switch IsToggled="{Binding IsAvailable}" />
-            </HorizontalStackLayout>
+
 
             <!-- Location Section -->
             <Label Text="Location (Optional)"

@@ -6,10 +6,10 @@
              xmlns:converters="clr-namespace:RentalApp.Converters"
              Title="{Binding Title}">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- Error Message -->
-        <Border Grid.Row="0"
+        <Border Grid.Row="1"
                 BackgroundColor="#FFEBEE"
                 Stroke="#F44336"
                 StrokeThickness="1"
@@ -37,7 +37,7 @@
         </Border>
 
         <!-- Main Content -->
-        <RefreshView Grid.Row="1"
+        <RefreshView Grid.Row="2"
                      IsRefreshing="{Binding IsRefreshing}"
                      Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding ItemsWithRentals}"
@@ -101,7 +101,7 @@
                                                    Margin="0,5,0,0" />
 
                                            <!-- Action Buttons (Edit/Delete) -->
-                                           <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                                           ColumnDefinitions="*,*,Auto" ColumnSpacing="8" Margin="0,10,0,0">
                                         <Button Grid.Column="0"
                                                 Text="✏️ Edit"
@@ -184,39 +184,44 @@
                                                        Text="{Binding EndDate, StringFormat='📅 To: {0:dd/MM/yyyy}'}"
                                                        FontSize="14" />
 
-                                                <!-- Action Buttons - Different layouts based on status -->
-                                                <VerticalStackLayout Spacing="5" Margin="0,8,0,0">
-                                                    <!-- Pending: Show Approve and Reject -->
-                                                    <HorizontalStackLayout Spacing="8" 
-                                                                           IsVisible="{Binding Status, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Pending}">
-                                                        <Button Text="✓ Approve"
-                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=ApproveRentalCommand}"
-                                                                CommandParameter="{Binding .}"
-                                                                BackgroundColor="Green"
-                                                                TextColor="White"
-                                                                FontSize="12"
-                                                                Padding="10,5"
-                                                                HorizontalOptions="FillAndExpand" />
+                                                <!-- Action Buttons - Always show all buttons -->
+                                                <Grid Grid.Row="3" 
+                                                      ColumnDefinitions="*,*,*" 
+                                                      ColumnSpacing="8" 
+                                                      Margin="0,8,0,0">
 
-                                                        <Button Text="✕ Reject"
-                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=RejectRentalCommand}"
-                                                                CommandParameter="{Binding .}"
-                                                                BackgroundColor="Red"
-                                                                TextColor="White"
-                                                                FontSize="12"
-                                                                Padding="10,5"
-                                                                HorizontalOptions="FillAndExpand" />
-                                                    </HorizontalStackLayout>
+                                                    <!-- Approve Button - Only visible when Pending -->
+                                                    <Button Grid.Column="0"
+                                                            Text="✓ Approve"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=ApproveRentalCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            BackgroundColor="Green"
+                                                            TextColor="White"
+                                                            FontSize="12"
+                                                            Padding="10,5"
+                                                            IsVisible="{Binding Status, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Pending}" />
 
-                                                    <!-- Complete button - Always visible -->
-                                                    <Button Text="✓ Complete Rental"
+                                                    <!-- Reject Button - Only visible when Pending -->
+                                                    <Button Grid.Column="1"
+                                                            Text="✕ Reject"
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=RejectRentalCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            BackgroundColor="Red"
+                                                            TextColor="White"
+                                                            FontSize="12"
+                                                            Padding="10,5"
+                                                            IsVisible="{Binding Status, Converter={StaticResource StringEqualityConverter}, ConverterParameter=Pending}" />
+
+                                                    <!-- Complete Button - Always visible -->
+                                                    <Button Grid.Column="2"
+                                                            Text="✓ Complete"
                                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MyItemsViewModel}}, Path=CompleteRentalCommand}"
                                                             CommandParameter="{Binding .}"
                                                             BackgroundColor="Blue"
                                                             TextColor="White"
                                                             FontSize="12"
                                                             Padding="10,5" />
-                                                </VerticalStackLayout>
+                                                </Grid>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -229,7 +234,7 @@
         </RefreshView>
 
         <!-- Floating Action Button for Create Item -->
-        <Button Grid.Row="1"
+        <Button Grid.Row="2"
                 Text="+"
                 FontSize="32"
                 Command="{Binding CreateItemCommand}"
