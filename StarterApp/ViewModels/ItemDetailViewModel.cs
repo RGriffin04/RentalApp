@@ -33,7 +33,7 @@ public partial class ItemDetailViewModel : BaseViewModel
     /// @brief Average rating for the item
     [ObservableProperty]
     private double _averageRating;
-
+    
     /// @brief Number of ratings
     [ObservableProperty]
     private int _ratingCount;

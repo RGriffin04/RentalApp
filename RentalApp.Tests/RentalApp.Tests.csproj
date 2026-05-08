@@ -5,6 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+
+    <!-- Coverlet exclusions -->
+    <CoverletOutputFormat>cobertura,json,lcov</CoverletOutputFormat>
+    <!-- Exclude migration files and generated code by file path -->
+    <ExcludeByFile>**/Migrations/**/*.cs,**/*Generated*.cs,**/*.Generated.cs,**/*.g.cs,**/*.designer.cs</ExcludeByFile>
+    <!-- Exclude by assembly/namespace pattern -->
+    <Exclude>[RentalApp.Database]RentalApp.Database.Migrations.*,[*.Tests]*,[*]Microsoft.AspNetCore.OpenApi.Generated.*</Exclude>
+    <!-- Exclude by attributes -->
+    <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,6 +50,10 @@
     <Compile Include="..\StarterApp\ViewModels\MyItemsViewModel.cs" Link="ViewModels\MyItemsViewModel.cs" />
     <Compile Include="..\StarterApp\ViewModels\ItemsListViewModel.cs" Link="ViewModels\ItemsListViewModel.cs" />
     <Compile Include="..\StarterApp\ViewModels\NearbyItemsViewModel.cs" Link="ViewModels\NearbyItemsViewModel.cs" />
+    <Compile Include="..\StarterApp\ViewModels\LoginViewModel.cs" Link="ViewModels\LoginViewModel.cs" />
+    <Compile Include="..\StarterApp\ViewModels\RegisterViewModel.cs" Link="ViewModels\RegisterViewModel.cs" />
+    <Compile Include="..\StarterApp\ViewModels\ItemDetailViewModel.cs" Link="ViewModels\ItemDetailViewModel.cs" />
+    <Compile Include="..\StarterApp\ViewModels\CreateItemViewModel.cs" Link="ViewModels\CreateItemViewModel.cs" />
   </ItemGroup>
 
 </Project>
